@@ -22,33 +22,24 @@ public class AnshikaTaskBajajApplication {
     private static final Logger logger = Logger.getLogger(AnshikaTaskBajajApplication.class.getName());
 
     public static void main(String[] args) {
-        // This is the correct fix for your previous 'bfhl.submitWebhook.url' error.
         SpringApplication application = new SpringApplication(AnshikaTaskBajajApplication.class);
         application.setWebApplicationType(WebApplicationType.NONE);
         application.run(args);
     }
 
-    // --- REMOVED THE DUPLICATE @Bean public RestTemplate restTemplate() { ... } METHOD ---
-    // The RestTemplate bean is now provided solely by RestTemplateConfig.class, resolving the conflict.
-
-    /**
-     * Executes the main task flow on application startup using CommandLineRunner.
-     */
     @Bean
     public CommandLineRunner runTask(RestTemplate restTemplate) {
         return args -> {
             logger.info("Starting Task: Generating Webhook and Submitting SQL Query...");
 
-            // --- Step 1: Generate Webhook ---
             String webhookUrl = "https://bfhldevapigw.healthrx.co.in/hiring/generateWebhook/JAVA";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // User details updated from application.properties
             Map<String, String> requestBody = Map.of(
                     "name", "Anshika",
-                    "regNo", "22BCE10911", // Ends in 11 (Odd) -> Question 1
+                    "regNo", "22BCE10911",
                     "email", "anshikagarg2105@gmail.com"
             );
             HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
@@ -74,7 +65,6 @@ public class AnshikaTaskBajajApplication {
                 if (submissionUrl != null && accessToken != null) {
                     logger.info("Webhook generated successfully. AccessToken received.");
 
-                    // --- Step 2: Formulate and Submit SQL Query (Question 1) ---
                     String finalSqlQuery = getQuestion1SqlQuery();
                     submitSolution(restTemplate, accessToken, finalSqlQuery);
                 } else {
@@ -88,10 +78,7 @@ public class AnshikaTaskBajajApplication {
         };
     }
 
-    /**
-     * The SQL query for Question 1: Find the highest salaried employee per department,
-     * excluding payments made on the 1st day of the month.
-     */
+
     private String getQuestion1SqlQuery() {
         return """
             WITH FilteredPayments AS (
@@ -139,9 +126,7 @@ public class AnshikaTaskBajajApplication {
             """;
     }
 
-    /**
-     * Submits the final SQL query to the fixed submission URL.
-     */
+
     private void submitSolution(RestTemplate restTemplate, String accessToken, String finalQuery) {
         String finalSubmissionUrl = "https://bfhldevapigw.healthrx.co.in/hiring/testWebhook/JAVA";
 

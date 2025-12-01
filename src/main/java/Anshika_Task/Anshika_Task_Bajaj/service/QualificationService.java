@@ -40,7 +40,6 @@ public class QualificationService implements CommandLineRunner {
             System.out.println("\n=== Starting BFHL Task Execution ===");
             System.out.println("Using Registration Number: " + regNo);
 
-            // STEP 1 — Build request body
             Map<String, String> requestBody = Map.of(
                     "name", name,
                     "regNo", regNo,
@@ -52,7 +51,6 @@ public class QualificationService implements CommandLineRunner {
 
             HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
 
-            // STEP 2 — Call generateWebhook API
             ResponseEntity<GenerateWebhookResponse> response =
                     restTemplate.postForEntity(generateWebhookUrl, request, GenerateWebhookResponse.class);
 
@@ -74,16 +72,14 @@ public class QualificationService implements CommandLineRunner {
             System.out.println("Webhook URL received: " + webhookUrl);
             System.out.println("Access Token received: <hidden>");
 
-            // STEP 3 — BUILD FINAL SQL QUERY
             String finalSql = buildFinalSqlQuery();
 
             System.out.println("\nFinal SQL Query to be submitted:");
             System.out.println(finalSql);
 
-            // STEP 4 — Submit final SQL to the returned webhook
             HttpHeaders authHeaders = new HttpHeaders();
             authHeaders.setContentType(MediaType.APPLICATION_JSON);
-            authHeaders.set("Authorization", accessToken);  // raw token
+            authHeaders.set("Authorization", accessToken);
 
             Map<String, String> submitPayload = Map.of(
                     "finalQuery", finalSql
